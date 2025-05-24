@@ -9,14 +9,10 @@ class CommentSearchRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'text' => ['nullable', 'string'],
-            'author' => ['nullable', 'string'],
-            'post_id' => ['nullable', 'integer', 'exists:posts,id'],
+            'text' => ['nullable', 'string', 'min:2'],
+            'author' => ['nullable', 'string', 'min:2'],
+            'limit' => ['nullable', 'integer', 'min:1', 'max:50'],
+            'cursor' => ['nullable', 'string'],
         ];
-    }
-
-    public function authorize(): bool
-    {
-        return true;
     }
 }

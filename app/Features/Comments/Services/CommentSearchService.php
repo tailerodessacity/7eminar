@@ -3,7 +3,7 @@
 namespace App\Features\Comments\Services;
 
 use App\Features\Comments\Repositories\CommentRepository;
-use Illuminate\Pagination\CursorPaginator;
+use Illuminate\Contracts\Pagination\CursorPaginator;
 
 class CommentSearchService
 {
@@ -13,8 +13,6 @@ class CommentSearchService
 
     public function search(array $filters): CursorPaginator
     {
-        return $this->repository->search($filters) ->cursorPaginate(15);
+        return $this->repository->search($filters);
     }
-
 }
-
