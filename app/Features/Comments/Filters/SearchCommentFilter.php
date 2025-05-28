@@ -2,7 +2,9 @@
 
 namespace App\Features\Comments\Filters;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Str;
 
 class SearchCommentFilter
 {
@@ -19,8 +21,10 @@ class SearchCommentFilter
         $this->builder = $builder;
 
         foreach ($this->filters as $key => $value) {
-            if (method_exists($this, $key) && filled($value)) {
-                $this->{$key}($value);
+            $method = Str::camel($key);
+
+            if (method_exists($this, $method) && filled($value)) {
+                $this->{$method}($value);
             }
         }
 
@@ -29,18 +33,35 @@ class SearchCommentFilter
 
     protected function text(string $value): void
     {
-        $this->builder->where('text', 'like', '%' . $value . '%');
+        $this->builder->whereFullText('text', $value, [
+            'mode' => 'boolean'
+        ]);
     }
 
     protected function author(string $value): void
     {
         $this->builder->whereHas('user', function (Builder $query) use ($value) {
-            $query->where('name', 'like', '%' . $value . '%');
+            $query->whereFullText('name', $value, ['mode' => 'boolean']);
         });
     }
 
-    protected function post_id(int $value): void
+    protected function postId(int $value): void
     {
         $this->builder->where('post_id', $value);
+    }
+
+    protected function dateFrom(string $value): void
+    {
+        $this->builder->where('created_at', '>=', Carbon::parse($value)->startOfDay());
+    }
+
+    protected function dateTo(string $value): void
+    {
+        $this->builder->where('created_at', '<=', Carbon::parse($value)->endOfDay());
+    }
+
+    protected function userId(int $value): void
+    {
+        $this->builder->where('user_id', $value);
     }
 }
